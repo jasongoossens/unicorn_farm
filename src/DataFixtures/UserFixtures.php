@@ -9,7 +9,6 @@ use Doctrine\Persistence\ObjectManager;
 
 class UserFixtures extends BaseFixture
 {
-
     protected function loadData(ObjectManager $manager)
     {
         for ($i = 0; $i < 20; $i++) {
