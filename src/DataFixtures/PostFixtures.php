@@ -26,9 +26,9 @@ class PostFixtures extends BaseFixture implements DependentFixtureInterface
             $post->setUnicorn($unicorn);
 
             // if a unicorn has an owner/user, the post will have been deleted
-            $post->setDeleted(false);
+            $post->setDeleted(true);
             if (!$unicorn?->getUser()) {
-                $post->setDeleted(true);
+                $post->setDeleted(false);
             }
 
             $manager->persist($post);
