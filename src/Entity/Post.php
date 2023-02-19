@@ -25,7 +25,7 @@ class Post
     private ?Unicorn $unicorn = null;
 
     #[ORM\Column]
-    private ?bool $deleted = null;
+    private ?bool $deleted = false;
 
     public function getId(): ?int
     {
