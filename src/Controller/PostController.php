@@ -181,7 +181,7 @@ class PostController extends AbstractController
             ]
         );
         ray($post);
-        
+
         if (!$post) {
             return new JsonResponse(
                 sprintf('No post found for id %d and user %d', $postId, $userId), Response::HTTP_NOT_FOUND

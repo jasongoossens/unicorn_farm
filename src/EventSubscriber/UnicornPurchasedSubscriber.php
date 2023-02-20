@@ -2,23 +2,41 @@
 
 namespace App\EventSubscriber;
 
+use App\Entity\Post;
 use App\Event\UnicornPurchasedEvent;
+use App\Service\MailService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\SentMessage;
+
 
 class UnicornPurchasedSubscriber implements EventSubscriberInterface
 {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        protected MailService                   $mailer
+    )
+    {
+    }
 
     public static function getSubscribedEvents()
     {
         return [
-            UnicornPurchasedEvent::NAME => 'onUnicornPurchased',
+            UnicornPurchasedEvent::NAME => 'handlePurchase',
         ];
     }
 
-    public function onUnicornPurchased(UnicornPurchasedEvent $event)
+    public function handlePurchase(UnicornPurchasedEvent $event)
     {
-        ray($event);
+        $unicorn = $event->getUnicorn();
+        $postRepository = $this->em->getRepository(Post::class);
+        $postCount = $postRepository->deletePostsForUnicorn($unicorn);
 
-        $userEmail = $event->getUser()->getEmailAddress();
+        $this->mailer->sendCongratulationsEmail(
+            $event->getUser()->getEmailAddress(),
+            $unicorn->getName(),
+            $postCount,
+        );
     }
 }

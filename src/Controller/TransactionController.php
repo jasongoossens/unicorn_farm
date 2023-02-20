@@ -50,7 +50,7 @@ class TransactionController extends AbstractController
         $this->em->persist($unicorn);
         $this->em->flush();
 
-        $event = new UnicornPurchasedEvent($user);
+        $event = new UnicornPurchasedEvent($user, $unicorn);
         $this->dispatcher->dispatch($event, UnicornPurchasedEvent::NAME);
 
         return new JsonResponse(sprintf('Unicorn %d purchased', $data['unicorn']));
