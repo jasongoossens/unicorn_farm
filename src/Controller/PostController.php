@@ -69,11 +69,17 @@ class PostController extends AbstractController
             return new JsonResponse(sprintf('No unicorn found for id %d', $unicornId), Response::HTTP_NOT_FOUND);
         }
 
+        if (!isset($data['body'])) {
+            return new JsonResponse('A post body is required', Response::HTTP_NOT_FOUND);
+        }
         $postBody = $data['body'];
         if (empty($postBody)) {
             return new JsonResponse('Posts are required to have a body', Response::HTTP_BAD_REQUEST);
         }
 
+        if (!isset($data['user'])) {
+            return new JsonResponse('A user id is required', Response::HTTP_NOT_FOUND);
+        }
         $userRepository = $this->em->getRepository(User::class);
         $user = $userRepository->find($data['user']);
         if (!$user) {
@@ -123,8 +129,7 @@ class PostController extends AbstractController
         $postBody = '';
         if (isset($data['body'])) {
             $postBody = $data['body'];
-            ray($postBody);
-            
+
             if (empty($postBody)) {
                 return new JsonResponse('Your post body cannot be empty', Response::HTTP_BAD_REQUEST);
             }
@@ -163,6 +168,9 @@ class PostController extends AbstractController
         }
 
         $data = json_decode($request->getContent(), true);
+        if (!isset($data['post'])) {
+            return new JsonResponse('A post id is required', Response::HTTP_NOT_FOUND);
+        }
         $postId = $data['post'];
         $postRepository = $this->em->getRepository(Post::class);
         $post = $postRepository->findOneBy(
@@ -172,10 +180,11 @@ class PostController extends AbstractController
                 'deleted' => false
             ]
         );
-
+        ray($post);
+        
         if (!$post) {
             return new JsonResponse(
-                sprintf('No post found for id %d', $postId), Response::HTTP_NOT_FOUND
+                sprintf('No post found for id %d and user %d', $postId, $userId), Response::HTTP_NOT_FOUND
             );
         }
 
