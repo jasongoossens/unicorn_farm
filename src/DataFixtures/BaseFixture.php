@@ -9,7 +9,7 @@ use Faker\Generator;
 
 abstract class BaseFixture extends Fixture
 {
-    private ObjectManager $manager;
+    protected ObjectManager $manager;
     protected Generator $faker;
 
     abstract protected function loadData(ObjectManager $manager);
