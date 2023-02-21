@@ -42,8 +42,6 @@ class PostRepository extends ServiceEntityRepository
 
     public function deletePostsForUnicorn(Unicorn $unicorn): int
     {
-        ray($unicorn->getId());
-        
         return $this->createQueryBuilder('p')
             ->update()
             ->set('p.deleted', 'true')
