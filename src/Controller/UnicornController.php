@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Unicorn;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -11,7 +12,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class UnicornController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface $em
+        private readonly EntityManagerInterface $em,
+        private readonly LoggerInterface        $logger,
     )
     {
     }
@@ -34,6 +36,8 @@ class UnicornController extends AbstractController
                 'owner' => $unicorn->getUser()?->getId() ?? 'no owner'
             ];
         }
+
+        $this->logger->error('An error occurred');
 
         return new JsonResponse($data);
     }
