@@ -7,19 +7,20 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class UnicornController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly LoggerInterface        $logger,
+        protected readonly EntityManagerInterface $em,
+        protected readonly LoggerInterface        $apiLogger,
     )
     {
     }
 
     #[Route('/unicorns/', name: 'all_unicorns', methods: ['GET'])]
-    public function getAllUnicorns(): JsonResponse
+    public function getAllUnicorns(Request $request): JsonResponse
     {
         $repository = $this->em->getRepository(Unicorn::class);
         $unicorns = $repository->findAll();
@@ -37,7 +38,7 @@ class UnicornController extends AbstractController
             ];
         }
 
-        $this->logger->error('An error occurred');
+        $this->apiLogger->info('Queried all unicorns', ['route' => $request->attributes->get('_route')]);
 
         return new JsonResponse($data);
     }

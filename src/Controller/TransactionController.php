@@ -6,6 +6,7 @@ use App\Entity\Unicorn;
 use App\Entity\User;
 use App\Event\UnicornPurchasedEvent;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,8 +17,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class TransactionController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface     $em,
+        protected readonly EntityManagerInterface   $em,
         protected readonly EventDispatcherInterface $dispatcher,
+        protected readonly LoggerInterface          $apiLogger,
     )
     {
 
@@ -52,6 +54,13 @@ class TransactionController extends AbstractController
 
         $event = new UnicornPurchasedEvent($user, $unicorn);
         $this->dispatcher->dispatch($event, UnicornPurchasedEvent::NAME);
+
+        $this->apiLogger->info('Purchased unicorn',
+            [
+                'route' => $request->attributes->get('_route'),
+                'params' => $data,
+            ]
+        );
 
         return new JsonResponse(sprintf('Unicorn %d purchased', $data['unicorn']));
     }

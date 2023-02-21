@@ -7,15 +7,13 @@ use App\Event\UnicornPurchasedEvent;
 use App\Service\MailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mailer\SentMessage;
 
 
 class UnicornPurchasedSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        protected MailService                   $mailer
+        protected readonly EntityManagerInterface $em,
+        protected MailService                     $mailer
     )
     {
     }

@@ -6,6 +6,7 @@ use App\Entity\Post;
 use App\Entity\Unicorn;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,13 +16,14 @@ use Symfony\Component\Routing\Annotation\Route;
 class PostController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface $em
+        protected readonly EntityManagerInterface $em,
+        protected readonly LoggerInterface $apiLogger,
     )
     {
     }
 
     #[Route('/posts/', name: 'all_posts', methods: ['GET'])]
-    public function getAllPosts(): JsonResponse
+    public function getAllPosts(Request $request): JsonResponse
     {
         $repository = $this->em->getRepository(Post::class);
         $posts = $repository->findBy(
@@ -32,11 +34,13 @@ class PostController extends AbstractController
             return new JsonResponse('No posts found');
         }
 
+        $this->apiLogger->info('Queried all posts', ['route' => $request->attributes->get('_route')]);
+
         return new JsonResponse($this->mapPosts($posts));
     }
 
     #[Route('/users/{userId}/posts/', name: 'all_user_posts', methods: ['GET'])]
-    public function getPostsForUser(int $userId): JsonResponse
+    public function getPostsForUser(Request $request, int $userId): JsonResponse
     {
         $repository = $this->em->getRepository(Post::class);
         $posts = $repository->findBy(
@@ -50,10 +54,11 @@ class PostController extends AbstractController
             return new JsonResponse('No posts for this user');
         }
 
+        $this->apiLogger->info('Queried all posts for user', ['route' => $request->attributes->get('_route')]);
+
         return new JsonResponse($this->mapPosts($posts));
     }
 
-    /** Create a post with an optional favorite unicorn linked to it */
     #[Route('/posts/', name: 'create_post_for_user', methods: ['POST'])]
     public function createPostForUser(Request $request): JsonResponse
     {
@@ -95,10 +100,16 @@ class PostController extends AbstractController
         $this->em->persist($post);
         $this->em->flush();
 
+        $this->apiLogger->info('Create post for user',
+            [
+                'route' => $request->attributes->get('_route'),
+                'params' => $request->request->all(),
+            ]
+        );
+
         return new JsonResponse('Post created successfully');
     }
 
-    /** Update a post with an optional favorite unicorn linked to it */
     #[Route('/users/{userId}/posts/{postId}', name: 'edit_user_post', methods: ['PATCH'])]
     public function editPostForUser(Request $request, int $userId, int $postId): JsonResponse
     {
@@ -154,6 +165,13 @@ class PostController extends AbstractController
         $this->em->persist($post);
         $this->em->flush();
 
+        $this->apiLogger->info('Edit post for user',
+            [
+                'route' => $request->attributes->get('_route'),
+                'params' => $data,
+            ]
+        );
+
         return new JsonResponse(sprintf('Updated post %d', $postId));
     }
 
@@ -180,7 +198,6 @@ class PostController extends AbstractController
                 'deleted' => false
             ]
         );
-        ray($post);
 
         if (!$post) {
             return new JsonResponse(
@@ -191,6 +208,13 @@ class PostController extends AbstractController
         $post->setDeleted(true);
         $this->em->persist($post);
         $this->em->flush();
+
+        $this->apiLogger->info('Delete post for user',
+            [
+                'route' => $request->attributes->get('_route'),
+                'params' => $data,
+            ]
+        );
 
         return new JsonResponse(sprintf('Deleted post %d', $postId));
     }
