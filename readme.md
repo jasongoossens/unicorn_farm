@@ -9,6 +9,7 @@ You need to create your own .env.local file. Please see the .env.dist file for a
 
 To populate the database with dummy data, you can run `bin/console doctrine:fixtures:load -n`
 
+To test the mailer, I advise using [mailtrap.io](https://mailtrap.io/)
 ## Routes
 
 ### all_posts
