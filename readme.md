@@ -1,5 +1,7 @@
 # Unicorn farm API
 
+This is a coding test for a job application to Zimmo.
+  
 ## Basics
 
 This is a traditional Symfony 6.2 app, meaning after pulling it, you'll need to run `composer install`, and run the
